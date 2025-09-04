@@ -210,7 +210,7 @@
   right: 0;
   bottom: 0;
   width: 600px;
-  min-width: 320px;
+  min-width: 0;
   max-width: 130vw;
   height: 200vh;
   overflow-y: auto;
@@ -279,9 +279,8 @@
         <input id="fileInput" type="file" accept="image/*" />
         <button id="downloadImage" class="btn">Download PNG</button>
         <button id="resetAll" class="btn">Reset</button>
-        <button id="resetZoomPan" class="btn">Reset Zoom/Pan</button>
+        <button id="resetZoomPan" class="btn">Center Image</button>
         <button id="clearSelection" class="btn">Clear Selection</button>
-        <label class="small"><input id="showOnlySelected" type="checkbox"> Show only selected sprites</label>
       </div>
     </div>
 
@@ -402,6 +401,9 @@ const redoColors = document.getElementById('redoColors');
   Internal state
 -------------------------*/
 let originalImageData = null;       // ImageData of original loaded image (RGBA)
+let originalLoadedImageData = null;   // pristine first-loaded pixels
+let originalPalette = null;           // pristine palette array
+let originalClusters = null;          // pristine clusters mapping
 let originalCanvasWidth = 0, originalCanvasHeight = 0;
 let displayedWidth = 0, displayedHeight = 0;
 let extractedPalette = [];         // array of [r,g,b]
@@ -774,23 +776,33 @@ function applyPaletteToCanvas(){
 function applyHueLightnessToSelected(hueValue, lightValue){
   if (selectedGroup.size === 0) { alert('Select one or more palette colors (Ctrl/Cmd+click) first'); return; }
   saveToHistory();
-  // Map values to original ranges
-  const hueShiftDegrees = ((hueValue - 1) / 99) * 360 - 180;
-  const lightnessDelta = ((lightValue - 1) / 99) * 1 - 0.5;
-  // For each selected color, replace its hue with the slider value, but keep its original saturation and lightness (tone/shade)
+  const targetH = ((parseFloat(hueValue) % 360) + 360) % 360;
+  const targetL = Math.max(0, Math.min(100, parseFloat(lightValue))) / 100;
+
+  // compute average lightness of the selected group (0..1)
+  let totalL = 0, count = 0;
+  for (const idx of selectedGroup){
+    const c = extractedPalette[idx];
+    if (!c) continue;
+    const { l } = rgbToHsl(c[0], c[1], c[2]); // l is 0..1
+    totalL += l;
+    count++;
+  }
+  const avgL = count ? (totalL / count) : targetL;
+  const delta = targetL - avgL; // preserve relative differences by applying delta
+
+  // apply: preserve saturation, set hue to targetH, adjust lightness by delta per color
   for (let idx of Array.from(selectedGroup)){
     const c = extractedPalette[idx];
     if (!c) continue;
-    const [r,g,b] = c;
-    const {h,s,l} = rgbToHsl(r,g,b);
-    // preserve black & white
+    const { h, s, l } = rgbToHsl(c[0], c[1], c[2]);
+    // keep true black/white unchanged
     if (l < 0.03 || l > 0.97) continue;
-    // Replace hue with slider value, keep s/l, and apply lightness delta
-    let newH = (hueShiftDegrees % 360); if (newH < 0) newH += 360;
-    let newL = Math.min(1, Math.max(0, l + lightnessDelta));
-    const newRgb = hslToRgb(newH/360, s, newL);
+    const newL = Math.min(1, Math.max(0, l + delta));
+    const newRgb = hslToRgb(targetH / 360, s, newL);
     extractedPalette[idx] = [newRgb.r, newRgb.g, newRgb.b];
   }
+
   applyPaletteToCanvas();
   renderExtractedPalette();
   clearHighlight();
@@ -869,21 +881,24 @@ fileInput.addEventListener('change', e=>{
     // draw original image
     ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.drawImage(img, 0, 0);
-    originalImageData = ctx.getImageData(0,0,canvas.width,canvas.height);
-    // extract palette (k-means-ish)
+    // Preserve pristine data (deep copies) only on first load or when new file chosen
+    originalLoadedImageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+    originalImageData = new ImageData(new Uint8ClampedArray(originalLoadedImageData.data), originalLoadedImageData.width, originalLoadedImageData.height);
     extractedPalette = extractDiverseColors(originalImageData.data, TARGET_PER_PALETTE);
     clusters = assignClusters(originalImageData.data, extractedPalette);
-    // initialize history
+    originalPalette = extractedPalette.map(c=>[...c]);
+    originalClusters = new Uint16Array(clusters);
+    /* History initialization */
     paletteHistory = [extractedPalette.map(c=>[...c])];
-    clustersHistory = [clusters ? new Uint16Array(clusters) : null];
+    clustersHistory = [new Uint16Array(clusters)];
     historyIndex = 0;
     // set display styles (scale to container)
     updateCanvasDisplaySize();
     renderExtractedPalette();
     clearHighlight();
     selectedGroup = new Set();
-    // updateStatus();
-    // statusText.textContent = `Loaded ${f.name} — ${canvas.width}×${canvas.height}`;
+    updateStatus();
+    updateSlidersFromSelectedGroup();
     // show overlay if grid enabled
     updateGrid();
   };
@@ -1003,53 +1018,44 @@ undoColors.addEventListener('click', ()=> undo(1));
 redoColors.addEventListener('click', ()=> redo(1));
 
 resetAllBtn.addEventListener('click', ()=>{
-  if (!originalImageData) return;
-  if (!confirm('Reset all edits and reload original image?')) return;
-  // Put original pixels back
-  ctx.putImageData(originalImageData, 0, 0);
-  // re-extract
-  extractedPalette = extractDiverseColors(originalImageData.data, TARGET_PER_PALETTE);
-  clusters = assignClusters(originalImageData.data, extractedPalette);
-  paletteHistory = [extractedPalette.map(c=>[...c])]; clustersHistory=[clusters?new Uint16Array(clusters):null]; historyIndex=0;
-  renderExtractedPalette(); clearHighlight(); selectedGroup=new Set(); updateStatus();
+  if (!originalLoadedImageData) return;
+  if (!confirm('Restore original image, palette, and undo all merges & recolors?')) return;
+  // Restore pixels
+  canvas.width = originalLoadedImageData.width;
+  canvas.height = originalLoadedImageData.height;
+  ctx.putImageData(originalLoadedImageData,0,0);
+  // Restore working image copy
+  originalImageData = new ImageData(new Uint8ClampedArray(originalLoadedImageData.data), originalLoadedImageData.width, originalLoadedImageData.height);
+  // Restore palette & clusters
+  extractedPalette = originalPalette.map(c=>[...c]);
+  clusters = new Uint16Array(originalClusters);
+  // Reset selection & history
+  selectedGroup.clear();
+  paletteHistory = [extractedPalette.map(c=>[...c])];
+  clustersHistory = [new Uint16Array(clusters)];
+  historyIndex = 0;
+  renderExtractedPalette();
+  clearHighlight();
+  updateUndoRedoButtons();
+  updateStatus();
+  updateSlidersFromSelectedGroup();
 });
 
-/* Toggle recolor button uses existing variable */
-toggleRecolor.addEventListener('click', ()=>{
-  doRecolor = !doRecolor;
+/* Center Image button (reset zoom & pan + recenter overlay) */
+const centerBtn = document.getElementById('resetZoomPan');
+centerBtn.addEventListener('click', ()=>{
+  resetZoomAndPan();
+  updateOverlayPosition();
 });
 
-/* Keyboard: Escape to clear highlights */
-document.addEventListener('keydown', (e)=>{ if (e.key==='Escape') clearHighlight(); });
-
-/* initial state defaults */
-mergeValue.textContent = mergeSlider.value;
-updateStatus();
-
-/* -------------------------
-  Slider display + gradient helpers
--------------------------*/
-function formatHueDeg(v){ return `${Math.round(v)}°`; }
-function formatLightPct(v){ return `${Math.round(v)}%`; }
-
-function updateHueDisplay(){
-  hueValue.textContent = formatHueDeg(hueSliderEl.value);
-}
-function updateLightDisplay(){
-  lightValue.textContent = formatLightPct(lightSliderEl.value);
-}
-function updateHueGradientFromLightness(lightPct){
-  // lightPct: 0..100 -> 0..1
-  const L = Math.max(0, Math.min(1, lightPct/100));
-  const stops = [];
-  // sample every 12° to keep gradient size sane
-  for (let deg=0; deg<=360; deg+=12){
-    const rgb = hslToRgb(deg/360, 1, L);
-    const pos = Math.round((deg/360)*100);
-    stops.push(`rgb(${rgb.r},${rgb.g},${rgb.b}) ${pos}%`);
-  }
-  hueSliderEl.style.background = `linear-gradient(90deg, ${stops.join(',')})`;
-}
+/* Clear Selection button */
+document.getElementById('clearSelection').addEventListener('click', ()=>{
+  if (selectedGroup.size === 0) return;
+  selectedGroup.clear();
+  document.querySelectorAll('.swatch.grouped').forEach(s=>s.classList.remove('grouped'));
+  clearHighlight();
+  updateSlidersFromSelectedGroup(); // will not change (no selection) but keeps behavior consistent
+});
 
 /* -------------------------
   Arrow clickers
@@ -1182,6 +1188,12 @@ function applyHueLightnessToSelected(hueDeg, lightPct){
 }
 
 /* update apply button */
+applyHueBtn.addEventListener('click', ()=>{
+  applyHueLightnessToSelected(hueSliderEl.value, lightSliderEl.value);
+});
+</script>
+</body>
+</html>
 applyHueBtn.addEventListener('click', ()=>{
   applyHueLightnessToSelected(hueSliderEl.value, lightSliderEl.value);
 });
