@@ -78,7 +78,7 @@
   appearance: none;
   outline: none;
 }
-/* Scale number display */
+/* Slider value display */
 .slider-value {
   min-width: 32px;
   text-align: right;
@@ -900,7 +900,7 @@ fileInput.addEventListener('change', e=>{
     updateStatus();
     updateSlidersFromSelectedGroup();
     // show overlay if grid enabled
-    updateGrid();
+    // updateGrid(); // This function was removed
   };
   img.src = URL.createObjectURL(f);
 });
@@ -1082,6 +1082,30 @@ lightRight.addEventListener('click', ()=> {
 });
 
 /* -------------------------
+  Slider display functions
+-------------------------*/
+function updateHueDisplay(){
+  hueValue.textContent = `${hueSliderEl.value}°`;
+}
+
+function updateLightDisplay(){
+  lightValue.textContent = `${lightSliderEl.value}%`;
+}
+
+function updateHueGradientFromLightness(lightPct){
+  // lightPct: 0..100 -> 0..1
+  const L = Math.max(0, Math.min(1, lightPct/100));
+  const stops = [];
+  // sample every 12° to keep gradient size sane
+  for (let deg=0; deg<=360; deg+=12){
+    const rgb = hslToRgb(deg/360, 1, L);
+    const pos = Math.round((deg/360)*100);
+    stops.push(`rgb(${rgb.r},${rgb.g},${rgb.b}) ${pos}%`);
+  }
+  hueSliderEl.style.background = `linear-gradient(90deg, ${stops.join(',')})`;
+}
+
+/* -------------------------
   Keep displays & gradient in sync
 -------------------------*/
 hueSliderEl.addEventListener('input', ()=> {
@@ -1126,10 +1150,15 @@ function averageHueLightnessOfSelected(){
 
 function updateSlidersFromSelectedGroup(){
   const avg = averageHueLightnessOfSelected();
-  if (!avg) return;
-  // set hue slider to avg hue, set lightness slider to avg lightness percent
-  hueSliderEl.value = Math.round(avg.hueDeg);
-  lightSliderEl.value = Math.round(avg.lightPct);
+  if (!avg) {
+    // If no selection, reset sliders to default
+    hueSliderEl.value = 180;
+    lightSliderEl.value = 50;
+  } else {
+    // set hue slider to avg hue, set lightness slider to avg lightness percent
+    hueSliderEl.value = Math.round(avg.hueDeg);
+    lightSliderEl.value = Math.round(avg.lightPct);
+  }
   // update visuals
   updateHueDisplay();
   updateLightDisplay();
@@ -1188,12 +1217,6 @@ function applyHueLightnessToSelected(hueDeg, lightPct){
 }
 
 /* update apply button */
-applyHueBtn.addEventListener('click', ()=>{
-  applyHueLightnessToSelected(hueSliderEl.value, lightSliderEl.value);
-});
-</script>
-</body>
-</html>
 applyHueBtn.addEventListener('click', ()=>{
   applyHueLightnessToSelected(hueSliderEl.value, lightSliderEl.value);
 });
