@@ -236,38 +236,45 @@ function renderExtractedPalette(){
     el.className = 'swatch';
     el.style.background = hex;
     el.title = `${hex} — idx ${i}`;
-    const idx = document.createElement('div'); idx.className='idx'; idx.textContent = i;
-    el.appendChild(idx);
+    
+    // Create split areas
+    const selectArea = document.createElement('div');
+    selectArea.className = 'swatch-select-area';
+    selectArea.title = 'Click to select/highlight color';
+    
+    const editArea = document.createElement('div');
+    editArea.className = 'swatch-edit-area';
+    editArea.title = 'Click to edit color';
+    
+    const idx = document.createElement('div'); 
+    idx.className='idx'; 
+    idx.textContent = i;
+    idx.style.position = 'absolute';
+    idx.style.top = '2px';
+    idx.style.left = '2px';
+    idx.style.fontSize = '8px';
+    idx.style.pointerEvents = 'none';
+    selectArea.appendChild(idx);
 
-    // Only show color picker for this swatch (hidden until hover)
+    // Color picker input (attached to edit area)
     const colorInput = document.createElement('input');
     colorInput.type = 'color';
     colorInput.value = hex;
     colorInput.title = 'Change color';
-    colorInput.style.width = '22px';
-    colorInput.style.height = '22px';
+    colorInput.style.width = '100%';
+    colorInput.style.height = '100%';
     colorInput.style.border = 'none';
-    colorInput.style.borderRadius = '4px';
-    colorInput.style.marginTop = '2px';
+    colorInput.style.borderRadius = '0 4px 4px 0';
     colorInput.style.cursor = 'pointer';
     // All positioning/visibility handled by CSS above
 
-    // Show color picker on hover or click, keep open until blur or another swatch is clicked
-    let pickerOpen = false;
-    el.addEventListener('mouseenter', () => {
-      if (!pickerOpen) colorInput.style.opacity = '1';
-      colorInput.style.pointerEvents = 'auto';
-    });
-    el.addEventListener('mouseleave', () => {
-      if (!pickerOpen) {
-        colorInput.style.opacity = '';
-        colorInput.style.pointerEvents = '';
-      }
-    });
-    el.addEventListener('click', (ev) => {
-      // Handle group selection first
-      if (ev.ctrlKey || ev.metaKey){
-        // Ctrl+click for group selection - don't open color picker
+    // Selection area click handler
+    selectArea.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      
+      // Handle group selection (now supports both regular click and Ctrl+click)
+      if (ev.ctrlKey || ev.metaKey || ev.shiftKey){
+        // Ctrl/Cmd/Shift+click for group selection
         if (selectedGroup.has(i)){
           selectedGroup.delete(i);
         } else {
@@ -281,22 +288,7 @@ function renderExtractedPalette(){
         updateStatus();
         updateSlidersFromSelectedGroup();
       } else {
-        // Regular click - open color picker and handle highlighting
-        pickerOpen = true;
-        colorInput.style.opacity = '1';
-        colorInput.style.pointerEvents = 'auto';
-        colorInput.focus();
-        colorInput.click();
-        // Deselect other open pickers
-        document.querySelectorAll('.swatch input[type="color"]').forEach(input => {
-          if (input !== colorInput) {
-            input.style.opacity = '';
-            input.style.pointerEvents = '';
-            input.blur();
-            input.parentElement.pickerOpen = false;
-          }
-        });
-        
+        // Regular click - handle highlighting
         if (highlightedColorIndex === i){
           clearHighlight();
         } else {
@@ -306,11 +298,33 @@ function renderExtractedPalette(){
         }
       }
     });
+
+    // Edit area click handler
+    let pickerOpen = false;
+    editArea.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      // Open color picker
+      pickerOpen = true;
+      colorInput.style.opacity = '1';
+      colorInput.style.pointerEvents = 'auto';
+      colorInput.focus();
+      colorInput.click();
+      // Deselect other open pickers
+      document.querySelectorAll('.swatch input[type="color"]').forEach(input => {
+        if (input !== colorInput) {
+          input.style.opacity = '';
+          input.style.pointerEvents = '';
+          input.blur();
+        }
+      });
+    });
+    
     colorInput.addEventListener('blur', () => {
       pickerOpen = false;
       colorInput.style.opacity = '';
       colorInput.style.pointerEvents = '';
     });
+    
     colorInput.addEventListener('input', (e) => {
       const {r,g,b} = hexToRgb(e.target.value);
       saveToHistory();
@@ -319,10 +333,16 @@ function renderExtractedPalette(){
       renderExtractedPalette();
       // Keep picker open after update
       setTimeout(() => {
-        colorInput.focus();
+        const newColorInput = colorList.children[i].querySelector('input[type="color"]');
+        if (newColorInput) {
+          newColorInput.focus();
+        }
       }, 0);
     });
-    el.appendChild(colorInput);
+    
+    editArea.appendChild(colorInput);
+    el.appendChild(selectArea);
+    el.appendChild(editArea);
 
     // ...existing contextmenu logic...
     el.addEventListener('contextmenu', (ev)=>{
@@ -839,23 +859,52 @@ function updateSlidersFromSelectedGroup(){
 /* ...existing code... */
 
 /* -------------------------
-  Apply using absolute hue & lightness
-  - hueValue: 0..360, lightValue: 0..100
+  Apply hue shift and lightness adjustment to selected colors
+  - Preserves individual saturation and relative lightness differences
+  - hueDeg: target hue (0..360), lightPct: target average lightness (0..100)
 -------------------------*/
 function applyHueLightnessToSelected(hueDeg, lightPct){
   if (selectedGroup.size === 0) { alert('Select one or more palette colors (Ctrl/Cmd+click) first'); return; }
   saveToHistory();
+  
   const targetH = ((parseFloat(hueDeg) % 360) + 360) % 360;
   const targetL = Math.max(0, Math.min(100, parseFloat(lightPct))) / 100;
+
+  // Get current average hue and lightness of selected group
+  const avg = averageHueLightnessOfSelected();
+  if (!avg) return;
+  
+  const currentAvgH = avg.hueDeg;
+  const currentAvgL = avg.lightPct / 100;
+  
+  // Calculate hue shift (handle wraparound)
+  let hueShift = targetH - currentAvgH;
+  if (hueShift > 180) hueShift -= 360;
+  if (hueShift < -180) hueShift += 360;
+  
+  // Calculate lightness adjustment
+  const lightnessAdjust = targetL - currentAvgL;
+
+  // Apply shift to each color while preserving individual characteristics
   for (let idx of Array.from(selectedGroup)){
     const c = extractedPalette[idx];
     if (!c) continue;
-    const {h,s,l} = rgbToHsl(c[0], c[1], c[2]);
-    // preserve near-black/white if wanted; otherwise set to targetL (we keep preserving extremes)
+    const {h, s, l} = rgbToHsl(c[0], c[1], c[2]);
+    
+    // Skip near-black/white colors to preserve them
     if (l < 0.03 || l > 0.97) continue;
-    const newRgb = hslToRgb(targetH/360, s, targetL);
+    
+    // Apply hue shift (preserve original saturation)
+    let newH = (h * 360 + hueShift) % 360;
+    if (newH < 0) newH += 360;
+    
+    // Apply lightness adjustment (preserve relative differences)
+    const newL = Math.min(0.95, Math.max(0.05, l + lightnessAdjust));
+    
+    const newRgb = hslToRgb(newH / 360, s, newL);
     extractedPalette[idx] = [newRgb.r, newRgb.g, newRgb.b];
   }
+  
   applyPaletteToCanvas();
   renderExtractedPalette();
   clearHighlight();

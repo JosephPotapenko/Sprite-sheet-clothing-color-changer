@@ -3,253 +3,466 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sprite Sheet Maker - README</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
+  <title>Sprite Color Shifter - README</title>
+  <link rel="stylesheet" href="style.css"        <li><strong>Split Swatch Interface</strong>: Each color has two click areas - gray left side for selection, right side for editing</li>
+        <li><strong>Interactive Color Highlighting</strong>: Click the left (gray) area of extracted colors to highlight them in the image</li>
+        <li><strong>Intuitive Color Editing</strong>: Click the right area of colors to open the color picker for precise editing</li>  <style>
     .readme-container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
       padding: 20px;
       line-height: 1.6;
     }
     .readme-content {
       background: white;
-      color: #1a1a1a;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      margin-top: 60px;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      margin-top: 80px;
     }
     body.dark-mode .readme-content {
-      background: linear-gradient(135deg, #1e2a3a, #2a3647);
-      color: #c7e3ff;
-      box-shadow: 0 0 15px rgba(58, 79, 102, 0.2);
+      background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+      color: #eee;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
     .readme-content h1 {
       color: #2196F3;
-      border-bottom: 2px solid #2196F3;
-      padding-bottom: 10px;
+      border-bottom: 3px solid #2196F3;
+      padding-bottom: 15px;
+      margin-bottom: 25px;
     }
     body.dark-mode .readme-content h1 {
-      color: #5ca8ff;
-      border-bottom-color: #5ca8ff;
+      color: #64b5f6;
+      border-bottom-color: #64b5f6;
     }
     .readme-content h2 {
       color: #1976D2;
-      margin-top: 30px;
+      margin-top: 35px;
+      margin-bottom: 20px;
+      font-size: 1.5em;
     }
     body.dark-mode .readme-content h2 {
-      color: #9ecafb;
+      color: #90caf9;
     }
     .readme-content h3 {
       color: #333;
       margin-top: 25px;
+      margin-bottom: 15px;
+      font-size: 1.2em;
     }
     body.dark-mode .readme-content h3 {
-      color: #c7e3ff;
+      color: #bbdefb;
     }
     .readme-content code {
       background: #f5f5f5;
-      padding: 2px 6px;
-      border-radius: 3px;
-      font-family: monospace;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
     }
     body.dark-mode .readme-content code {
-      background: #0a0f1a;
-      color: #9ecafb;
+      background: #333;
+      color: #64b5f6;
     }
     .readme-content pre {
       background: #f8f9fa;
-      padding: 15px;
-      border-radius: 5px;
+      padding: 20px;
+      border-radius: 8px;
       overflow-x: auto;
       border-left: 4px solid #2196F3;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
     }
     body.dark-mode .readme-content pre {
-      background: #0a0f1a;
-      border-left-color: #5ca8ff;
+      background: #1e1e1e;
+      border-left-color: #64b5f6;
+      color: #e0e0e0;
     }
     .readme-content ul, .readme-content ol {
-      padding-left: 25px;
+      padding-left: 30px;
     }
     .readme-content li {
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+    }
+    .readme-content strong {
+      color: #1976D2;
+    }
+    body.dark-mode .readme-content strong {
+      color: #90caf9;
+    }
+    .readme-content em {
+      color: #666;
+      font-style: italic;
+    }
+    body.dark-mode .readme-content em {
+      color: #aaa;
+    }
+    .readme-content hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, #2196F3, transparent);
+      margin: 30px 0;
+    }
+    body.dark-mode .readme-content hr {
+      background: linear-gradient(to right, #64b5f6, transparent);
     }
     #backBtn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1000;
       background: #4CAF50 !important;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
     }
     #backBtn:hover {
       background: #45a049 !important;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
     }
     body.dark-mode #backBtn {
       background: linear-gradient(135deg, #2a4766, #3a5f85) !important;
+      box-shadow: 0 2px 8px rgba(42, 71, 102, 0.5);
     }
     body.dark-mode #backBtn:hover {
       background: linear-gradient(135deg, #3a5f85, #4a7aa3) !important;
+      box-shadow: 0 4px 12px rgba(58, 95, 133, 0.6);
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .feature-card {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 4px solid #2196F3;
+    }
+    body.dark-mode .feature-card {
+      background: #2a2a2a;
+      border-left-color: #64b5f6;
+    }
+    .badge {
+      display: inline-block;
+      background: #2196F3;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 15px;
+      font-size: 0.8em;
+      font-weight: 600;
+      margin: 2px;
+    }
+    body.dark-mode .badge {
+      background: #64b5f6;
+      color: #1a1a1a;
+    }
+    .nav-links {
+      text-align: center;
+      margin: 30px 0;
+      padding: 20px;
+      background: #f0f7ff;
+      border-radius: 8px;
+    }
+    body.dark-mode .nav-links {
+      background: #1a2332;
+    }
+    .nav-links a {
+      color: #2196F3;
+      text-decoration: none;
+      font-weight: 600;
+      margin: 0 15px;
+      font-size: 1.1em;
+    }
+    body.dark-mode .nav-links a {
+      color: #90caf9;
+    }
+    @media (max-width: 768px) {
+      .readme-container {
+        padding: 10px;
+      }
+      .readme-content {
+        padding: 20px;
+        margin-top: 60px;
+      }
+      #backBtn {
+        top: 10px;
+        left: 10px;
+        padding: 10px 16px;
+        font-size: 12px;
+      }
     }
   </style>
 </head>
-<body>
-  <div id="navigation">
-    <button id="backBtn" onclick="window.location.href='index.html'">⬅️ Back to Program</button>
-  </div>
+<body class="dark-mode">
+  <button id="backBtn" onclick="window.location.href='index.html'">⬅️ Back to App</button>
 
   <div class="readme-container">
     <div class="readme-content">
-      <h1>Sprite Sheet Maker</h1>
+      <h1>🎨 Sprite Color Shifter</h1>
 
-      <p>A powerful web-based tool for creating sprite sheets from individual images and recording animated sprite sequences. Perfect for game developers, pixel artists, and anyone working with sprite-based animations.</p>
+      <div class="nav-links">
+        <a href="index.html">🚀 Launch App</a> | 
+        <a href="https://github.com/JosephPotapenko/Sprite-sheet-clothing-color-changer" target="_blank">📂 GitHub Repository</a>
+      </div>
 
-      <p><em>This tool was developed with the assistance of AI tools to enhance development speed and code quality.</em></p>
+      <p>A powerful web-based application for advanced sprite and image color manipulation, palette extraction, and real-time color replacement. Transform any image using professionally curated color palettes with pixel-perfect precision and instant visual feedback.</p>
 
-      <h2>Features</h2>
+      <p><em>Developed with AI assistance to create an intuitive and powerful color manipulation tool for game developers, pixel artists, and designers.</em></p>
 
-      <h3>Core Sprite Sheet Creation</h3>
-      <ul>
-        <li><strong>Multi-Image Upload</strong>: Load multiple images simultaneously with automatic alphabetical sorting</li>
-        <li><strong>Drag & Drop Reordering</strong>: Easily rearrange sprites by dragging thumbnails to desired positions</li>
-        <li><strong>Configurable Grid Layout</strong>: Set custom column counts to control sprite sheet dimensions</li>
-        <li><strong>Individual Sprite Deletion</strong>: Remove unwanted sprites with convenient delete buttons</li>
-        <li><strong>Pixel-Perfect Rendering</strong>: Maintains crisp pixel art quality with disabled image smoothing</li>
-        <li><strong>Automatic Centering</strong>: Sprites are automatically centered within their grid cells</li>
-        <li><strong>PNG Export</strong>: Download high-quality sprite sheets as PNG files</li>
-      </ul>
+      <h2>🎯 Core Functionality</h2>
 
-      <h3>Advanced Sprite Navigator & Recorder</h3>
-      <ul>
-        <li><strong>Individual Sprite Navigation</strong>: Browse through uploaded sprites one by one using arrow buttons or keyboard shortcuts (←/→)</li>
-        <li><strong>Visual Sprite Selector</strong>: Click on thumbnail previews to quickly jump to specific sprites</li>
-        <li><strong>High-Quality Video Recording</strong>: Record sprite animations in WebM format with up to 16 Mbps bitrate</li>
-        <li><strong>Multiple Aspect Ratios</strong>: Support for various aspect ratios (1:1, 4:3, 16:9, 9:16, 3:2, 2:3, 5:4, 4:5, 21:9)</li>
-        <li><strong>1080p Recording Quality</strong>: Internal recording resolution targets 1080p for crisp video output</li>
-        <li><strong>Smart Sprite Positioning</strong>: Automatic bottom-alignment based on sprite content analysis</li>
-        <li><strong>Zoom Control</strong>: Adjustable zoom levels (10-100%) for optimal sprite framing</li>
-      </ul>
-
-      <h3>Background Customization</h3>
-      <ul>
-        <li><strong>Color Backgrounds</strong>: Choose any solid color background using the color picker</li>
-        <li><strong>Image Backgrounds</strong>: Upload custom background images that automatically crop to fit aspect ratio</li>
-        <li><strong>Transparent Backgrounds</strong>: Support for transparent backgrounds in sprite sheets</li>
-      </ul>
-
-      <h3>Recording Controls</h3>
-      <ul>
-        <li><strong>Real-Time Recording</strong>: Start/stop controlled recording with visual feedback</li>
-        <li><strong>Recording Timer</strong>: Live display of recording duration</li>
-        <li><strong>Frame Capture</strong>: Save individual frames as PNG images during recording (click canvas or press 'S')</li>
-        <li><strong>Keyboard Shortcuts</strong>:
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>🎨 Advanced Color Extraction & Analysis</h3>
           <ul>
-            <li>Space bar: Start/stop recording</li>
-            <li>S: Save current frame as image</li>
-            <li>Left/Right arrows: Navigate between sprites</li>
+            <li><strong>Intelligent Color Extraction</strong>: Automatically extracts dominant colors from any uploaded image</li>
+            <li><strong>Interactive Color Highlighting</strong>: Click extracted colors to see exactly where they appear in the image</li>
+            <li><strong>Color Replacement Mode</strong>: Double-click colors to enter precision replacement mode</li>
+            <li><strong>Smart Color Organization</strong>: Colors arranged by similarity and dominance</li>
+            <li><strong>Pixel-Perfect Selection</strong>: Exact color matching for sprite and pixel art</li>
+          </ul>
+        </div>
+
+        <div class="feature-card">
+          <h3>🖼️ Interactive Image Manipulation</h3>
+          <ul>
+            <li><strong>Unlimited Zoom & Pan</strong>: Smooth navigation with mouse wheel zoom and drag panning</li>
+            <li><strong>Real-Time Color Highlighting</strong>: Visual feedback showing selected color locations</li>
+            <li><strong>Instant Color Replacement</strong>: Replace colors with immediate visual confirmation</li>
+            <li><strong>Image Reset & Center</strong>: Quick controls to reset view and clear selections</li>
+            <li><strong>High-Quality Rendering</strong>: Pixel-perfect display with crisp edges</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>🎭 Professional Palette Library</h3>
+      <p>Access to multiple curated color palettes for different themes and styles:</p>
+      <p>
+        <span class="badge">Vibrant Colors</span>
+        <span class="badge">Muted Tones</span>
+        <span class="badge">Pastel Shades</span>
+        <span class="badge">Earth Tones</span>
+        <span class="badge">Neon Bright</span>
+        <span class="badge">Monochrome</span>
+        <span class="badge">Fantasy Themes</span>
+        <span class="badge">Nature Colors</span>
+        <span class="badge">Custom Palettes</span>
+        <span class="badge">And more...</span>
+      </p>
+
+      <h3>⚡ Advanced Features</h3>
+      <ul>
+        <li><strong>Batch Color Operations</strong>: Replace entire color schemes with palette matches</li>
+        <li><strong>PNG Export</strong>: Download processed images with all color changes applied</li>
+        <li><strong>Palette Management</strong>: Browse and apply professional color palettes</li>
+        <li><strong>Color Similarity Detection</strong>: Smart matching for related color tones</li>
+        <li><strong>Keyboard Shortcuts</strong>: 
+          <code>Escape</code> Clear selections | 
+          <code>Ctrl+click</code> Multi-select colors (on gray area) | 
+          <code>Mouse wheel</code> Zoom | 
+          <code>Ctrl+wheel</code> Fine zoom control
+        </li>
+        <li><strong>Responsive Design</strong>: Works seamlessly on desktop, tablet, and mobile devices</li>
+        <li><strong>Local Processing</strong>: All operations happen in-browser - complete privacy</li>
+        <li><strong>Dark/Light Mode</strong>: Toggle between themes for comfortable editing</li>
+      </ul>
+
+      <h2>🚀 Quick Start Guide</h2>
+
+      <h3>Basic Workflow</h3>
+      <ol>
+        <li><strong>Upload Image</strong>: Click "Choose file" and select any image (JPG, PNG, GIF, WebP)</li>
+        <li><strong>Explore Colors</strong>: View the automatically extracted color palette in the right panel</li>
+        <li><strong>Interact</strong>: 
+          <ul>
+            <li>Click the <strong>left (gray) area</strong> of extracted colors to highlight them in the image</li>
+            <li>Click the <strong>right area</strong> of extracted colors to open the color picker for editing</li>
+            <li>Use <strong>Ctrl+click</strong> (or Cmd+click) on the left area to select multiple colors for group operations</li>
+            <li>Use zoom/pan to examine details</li>
           </ul>
         </li>
-        <li><strong>Video Management</strong>: Download recorded videos or remove them to start fresh</li>
-      </ul>
-
-      <h3>User Interface</h3>
-      <ul>
-        <li><strong>Dark/Light Mode Toggle</strong>: Automatic dark mode on load with toggle option</li>
-        <li><strong>Responsive Design</strong>: Adapts to different screen sizes and devices</li>
-        <li><strong>Intuitive Controls</strong>: Clean, organized interface with clearly labeled functions</li>
-        <li><strong>Real-Time Preview</strong>: Instant preview of sprite sheet as you make changes</li>
-      </ul>
-
-      <h2>How to Use</h2>
-
-      <h3>Creating a Sprite Sheet</h3>
-      <ol>
-        <li>Click "Choose Files" and select multiple image files</li>
-        <li>Images will appear as draggable thumbnails in the preview area</li>
-        <li>Drag thumbnails to reorder sprites as needed</li>
-        <li>Set the desired number of columns using the "Columns" input</li>
-        <li>Click "Combine" to generate the sprite sheet</li>
-        <li>Click "Download" to save the sprite sheet as a PNG file</li>
-      </ol>
-
-      <h3>Recording Sprite Animations</h3>
-      <ol>
-        <li>Upload your sprite images using the file input</li>
-        <li>Navigate to the "Sprite Navigator & Recorder" section</li>
-        <li>Choose your preferred aspect ratio from the dropdown menu</li>
-        <li>Set the zoom level (40% is default for good framing)</li>
-        <li>Select background color or upload a background image</li>
-        <li>Use navigation buttons or thumbnail selector to choose your starting sprite</li>
-        <li>Click "🎬 Start Controlled Recording" to begin recording</li>
-        <li>Navigate between sprites during recording using:
+        <li><strong>Transform Colors</strong>: 
           <ul>
-            <li>Arrow buttons</li>
-            <li>Thumbnail selector</li>
-            <li>Left/Right keyboard arrows</li>
+            <li>Browse available palettes in the right panel tabs</li>
+            <li>Click any palette color while in replacement mode to change image colors</li>
+            <li>Use "Replace with Palette" for instant full transformation</li>
           </ul>
         </li>
-        <li>Press 'S' or click the preview canvas to save individual frames</li>
-        <li>Click "⏹️ Stop Recording" when finished</li>
-        <li>Download your recorded video using the "⬇️ Download Video" button</li>
+        <li><strong>Fine-tune</strong>: Make precise adjustments using individual color replacements</li>
+        <li><strong>Save</strong>: Download the processed image with "Download PNG"</li>
       </ol>
 
-      <h3>Keyboard Shortcuts</h3>
+      <h3>Advanced Techniques</h3>
       <ul>
-        <li><strong>Space</strong>: Start/stop recording</li>
-        <li><strong>S</strong>: Save current frame as PNG (during recording)</li>
-        <li><strong>Left Arrow</strong>: Previous sprite</li>
-        <li><strong>Right Arrow</strong>: Next sprite</li>
+        <li><strong>Split Interface Usage</strong>: Each color swatch has two areas - left gray area for selection/highlighting, right area for color editing</li>
+        <li><strong>Multi-Color Selection</strong>: Ctrl+click the gray area of multiple colors to select them for group operations</li>
+        <li><strong>Precision Editing</strong>: Click the right area of swatches to open color pickers for surgical color changes</li>
+        <li><strong>Palette Exploration</strong>: Try different themed palettes to find the perfect aesthetic</li>
+        <li><strong>Color Matching</strong>: Use the highlight feature (left area click) to understand color distribution before replacing</li>
+        <li><strong>Batch Processing</strong>: Apply entire palette sets for consistent style transformation</li>
       </ul>
 
-      <h2>Technical Features</h2>
+      <h2>🛠️ Technology Stack</h2>
       <ul>
-        <li><strong>Pixel Art Optimization</strong>: Disabled image smoothing for crisp pixel art rendering</li>
-        <li><strong>High Bitrate Recording</strong>: 16 Mbps video encoding for maximum quality</li>
-        <li><strong>Smart Background Detection</strong>: Automatic sprite boundary detection for optimal positioning</li>
-        <li><strong>Performance Optimization</strong>: Cached sprite analysis for smooth playback</li>
-        <li><strong>Browser Compatibility</strong>: Works in modern browsers with MediaRecorder API support</li>
+        <li><strong>HTML5 Canvas</strong>: For image rendering and pixel-level manipulation</li>
+        <li><strong>Vanilla JavaScript</strong>: Core color processing and extraction algorithms</li>
+        <li><strong>CSS3 Grid & Flexbox</strong>: Modern responsive layout with custom properties</li>
+        <li><strong>File API</strong>: For secure local image upload and processing</li>
+        <li><strong>Canvas ImageData</strong>: For pixel-perfect color analysis and replacement</li>
       </ul>
 
-      <h2>File Structure</h2>
-      <pre><code>sprite-sheet-composition/
-├── index.html          # Main HTML structure
-├── style.css           # All CSS styles and theming
-├── script.js           # Complete JavaScript functionality
-├── README.md          # This documentation
-└── favicons/          # App icons and favicons</code></pre>
-
-      <h2>Browser Support</h2>
-      <ul>
-        <li>Chrome/Chromium (recommended)</li>
-        <li>Firefox</li>
-        <li>Safari (limited video format support)</li>
-        <li>Edge</li>
-      </ul>
-
-      <p><em>Note: Video recording requires browsers with MediaRecorder API support. WebM format is preferred for best quality.</em></p>
-
-      <h2>Getting Started</h2>
+      <h2>📦 Installation</h2>
       <ol>
-        <li>Clone or download this repository</li>
-        <li>Open <code>index.html</code> in your web browser</li>
-        <li>Start uploading images and creating sprite sheets!</li>
+        <li>Clone this repository:
+          <pre><code>git clone https://github.com/JosephPotapenko/Sprite-sheet-clothing-color-changer.git</code></pre>
+        </li>
+        <li>Navigate to the project directory:
+          <pre><code>cd Sprite-sheet-clothing-color-changer</code></pre>
+        </li>
+        <li>Open <code>index.html</code> in your web browser or serve it using a local server:
+          <pre><code># Using Python 3
+python -m http.server 8000
+
+# Using Node.js (if you have live-server installed)
+npx live-server
+
+# Or simply double-click index.html</code></pre>
+        </li>
       </ol>
 
-      <p>No installation or build process required - it's a pure client-side web application.</p>
+      <h2>🏗️ Technical Architecture</h2>
 
-      <h2>Use Cases</h2>
+      <h3>Project Structure</h3>
+      <pre><code>├── index.html          # Main application interface
+├── script.js           # Core JavaScript functionality
+├── style.css           # Responsive CSS styling
+├── readme.html         # This documentation page
+├── README.md           # Markdown documentation
+└── favicons/          # Application icons and manifest</code></pre>
+
+      <h3>Algorithm Details</h3>
+      <p><strong>Color Extraction Engine</strong></p>
       <ul>
-        <li>Game development sprite sheet creation</li>
-        <li>Pixel art animation sequences</li>
-        <li>Character animation recording</li>
-        <li>UI element organization</li>
-        <li>Animation frame extraction</li>
-        <li>Social media content creation</li>
+        <li>Canvas-based pixel sampling for comprehensive color analysis</li>
+        <li>Color frequency analysis to identify dominant colors</li>
+        <li>RGB to HSL conversion for better color organization</li>
+        <li>Efficient color matching using distance calculations</li>
       </ul>
+
+      <p><strong>Image Processing Pipeline</strong></p>
+      <ul>
+        <li>Canvas-based pixel manipulation with ImageData API</li>
+        <li>Real-time color replacement with immediate visual feedback</li>
+        <li>Non-destructive editing preserving original image quality</li>
+        <li>Memory-efficient processing for large images</li>
+      </ul>
+
+      <h2>🎯 Use Cases & Applications</h2>
+
+      <h3>Game Development</h3>
+      <ul>
+        <li><strong>Sprite Recoloring</strong>: Change character colors for different teams or variants</li>
+        <li><strong>Asset Consistency</strong>: Maintain unified color schemes across game sprites</li>
+        <li><strong>Palette Swapping</strong>: Create different moods or environments with color changes</li>
+        <li><strong>Clothing Variations</strong>: Easily create multiple clothing color options for characters</li>
+      </ul>
+
+      <h3>Digital Art & Design</h3>
+      <ul>
+        <li><strong>Color Scheme Exploration</strong>: Test different color combinations quickly</li>
+        <li><strong>Brand Color Application</strong>: Apply consistent brand colors to artwork</li>
+        <li><strong>Mood Adjustment</strong>: Change artwork atmosphere through color modification</li>
+        <li><strong>Pixel Art Creation</strong>: Perfect tool for pixel artists working with limited palettes</li>
+      </ul>
+
+      <h3>Image Processing & Photography</h3>
+      <ul>
+        <li><strong>Selective Color Replacement</strong>: Change specific colors while preserving others</li>
+        <li><strong>Artistic Filters</strong>: Apply stylized color schemes to photographs</li>
+        <li><strong>Product Variants</strong>: Show products in different color options</li>
+        <li><strong>Creative Editing</strong>: Artistic recoloring for social media content</li>
+      </ul>
+
+      <h2>🌐 Browser Support & Requirements</h2>
+
+      <p><strong>Minimum Requirements:</strong></p>
+      <ul>
+        <li>Modern browser with HTML5 Canvas support (Chrome 51+, Firefox 54+, Safari 10+, Edge 79+)</li>
+        <li>JavaScript ES6+ support</li>
+        <li>File API for image uploads</li>
+        <li>256MB+ available RAM for image processing</li>
+      </ul>
+
+      <p><strong>Optimal Performance:</strong></p>
+      <ul>
+        <li>Desktop/laptop with 1GB+ RAM</li>
+        <li>Hardware acceleration enabled</li>
+        <li>Modern GPU for smooth zoom/pan operations</li>
+        <li>High-resolution display for detailed color work</li>
+      </ul>
+
+      <h2>🤝 Development & Contributing</h2>
+
+      <h3>Local Development</h3>
+      <pre><code># Clone the repository
+git clone https://github.com/JosephPotapenko/Sprite-sheet-clothing-color-changer.git
+cd Sprite-sheet-clothing-color-changer
+
+# Serve locally (choose one method)
+python -m http.server 8000        # Python
+npx live-server                   # Node.js
+php -S localhost:8000            # PHP</code></pre>
+
+      <h3>Contributing Guidelines</h3>
+      <ul>
+        <li><strong>New Palettes</strong>: Add themed color collections to enhance creative options</li>
+        <li><strong>Algorithm Improvements</strong>: Enhance color extraction or matching accuracy</li>
+        <li><strong>UI/UX Enhancement</strong>: Improve user interface and accessibility</li>
+        <li><strong>Performance Optimization</strong>: Optimize for larger images and mobile devices</li>
+        <li><strong>Feature Additions</strong>: Add new color manipulation tools and effects</li>
+      </ul>
+
+      <h2>📄 License & Credits</h2>
+
+      <p><strong>MIT License</strong> - Free for commercial and personal use</p>
+
+      <p><strong>Created with AI assistance</strong> to deliver professional-grade color manipulation capabilities while maintaining an intuitive user experience for artists, developers, and designers.</p>
+
+      <hr>
+
+      <div style="text-align: center; margin-top: 40px;">
+        <h3>🚀 Ready to transform your images?</h3>
+        <p><strong>No installation required</strong> - runs entirely in your browser with complete privacy (no uploads to external servers).</p>
+        <p><a href="index.html" style="background: #2196F3; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; margin-top: 20px;">Launch Application →</a></p>
+      </div>
     </div>
   </div>
 
   <script>
-    // Apply dark mode if it was enabled in the main app
-    if (localStorage.getItem('darkMode') === 'true') {
-      document.body.classList.add('dark-mode');
-    }
+    // Apply dark mode by default (matches app theme)
+    document.body.classList.add('dark-mode');
+    
+    // Smooth scrolling for internal links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
   </script>
 </body>
 </html>
