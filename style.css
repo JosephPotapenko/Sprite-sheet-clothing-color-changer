@@ -425,3 +425,312 @@ header.controls { display:flex; gap:8px; align-items:center; justify-content:spa
     width: 100%;
   }
 }
+
+/* Additional styles from index.html */
+/* Add blue glow for grouped swatches */
+.swatch.grouped {
+  box-shadow: 0 0 0 3px #7fdfff, 0 0 12px #7fdfff;
+  border: 2px solid #7fdfff !important;
+  z-index: 2;
+}
+
+/* Rainbow gradient for hue slider input itself */
+#hueSlider {
+  width: 100%;
+  height: 18px;
+  border-radius: 8px;
+  /* Initial background at lightness 50 */
+  background: linear-gradient(90deg, #800080 0%, #8000ff 10%, #0080ff 20%, #00ffff 30%, #00ff80 40%, #80ff00 50%, #ffff00 60%, #ff8000 70%, #ff0080 80%, #ff00ff 90%, #800080 100%);
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+}
+#hueSlider::-webkit-slider-thumb, #lightnessSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #7fdfff;
+  box-shadow: 0 0 6px #7fdfff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#hueSlider::-moz-range-thumb, #lightnessSlider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #7fdfff;
+  box-shadow: 0 0 6px #7fdfff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#hueSlider::-ms-thumb, #lightnessSlider::-ms-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #7fdfff;
+  box-shadow: 0 0 6px #7fdfff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#hueSlider::-webkit-slider-runnable-track, #lightnessSlider::-webkit-slider-runnable-track {
+  height: 18px;
+  border-radius: 8px;
+  background: transparent;
+}
+#hueSlider::-ms-fill-lower, #hueSlider::-ms-fill-upper,
+#lightnessSlider::-ms-fill-lower, #lightnessSlider::-ms-fill-upper {
+  background: transparent;
+}
+#hueSlider:focus, #lightnessSlider:focus {
+  outline: none;
+}
+/* Lightness slider gradient will be set dynamically via JS */
+#lightnessSlider {
+  width: 100%;
+  height: 18px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #000, #fff);
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+}
+/* Slider value display */
+.slider-value {
+  min-width: 32px;
+  text-align: right;
+  font-size: 13px;
+  color: #7fdfff;
+  font-weight: bold;
+  margin-left: 6px;
+  margin-right: 2px;
+  user-select: none;
+}
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.swatch-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 2px;
+  background: #222;
+  border-radius: 6px;
+  padding: 4px 2px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.swatch-tab input[type="color"] {
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 4px;
+  margin-bottom: 2px;
+  cursor: pointer;
+}
+.swatch-tab .swatch-lightness-slider {
+  width: 60px;
+  height: 14px;
+  border-radius: 6px;
+  margin-bottom: 2px;
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+  background: linear-gradient(90deg, #000, #fff);
+}
+.swatch-tab .swatch-lightness-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #7fdfff;
+  box-shadow: 0 0 4px #7fdfff;
+  cursor: pointer;
+}
+.swatch-tab .swatch-lightness-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #7fdfff;
+  box-shadow: 0 0 4px #7fdfff;
+  cursor: pointer;
+}
+.swatch-tab .swatch-lightness-slider::-ms-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #7fdfff;
+  box-shadow: 0 0 4px #7fdfff;
+  cursor: pointer;
+}
+.swatch-tab .swatch-lightness-slider::-webkit-slider-runnable-track {
+  height: 14px;
+  border-radius: 6px;
+  background: transparent;
+}
+.swatch-tab .swatch-lightness-slider:focus {
+  outline: none;
+}
+.swatch-tab .swatch-lightness-value {
+  font-size: 11px;
+  color: #7fdfff;
+  margin-left: 2px;
+  margin-right: 2px;
+  min-width: 24px;
+  text-align: right;
+}
+.swatch-tab .swatch-arrow {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: none;
+  background: #222;
+  color: #7fdfff;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 1px;
+  transition: background 0.2s;
+}
+.swatch-tab .swatch-arrow:hover {
+  background: #333;
+}
+.swatch {
+  position: relative;
+}
+.swatch input[type="color"] {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  transition: opacity 0.18s;
+  z-index: 3;
+}
+.swatch:hover input[type="color"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+.panel {
+  /* Keep panel fixed to the right edge as user requested */
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 600px;
+  min-width: 0;
+  max-width: 130vw;
+  height: 200vh;
+  overflow-y: auto;
+  background: var(--glass, #181c22e6);
+  box-shadow: -2px 0 16px rgba(0,0,0,0.12);
+  z-index: 10;
+  padding: 24px 18px 18px 18px;
+  display: flex;
+  flex-direction: column;
+}
+.app {
+  /* Make space for fixed panel on the right */
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+}
+.left {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  /* Prevent content under panel */
+  margin-right: 600px;
+}
+.canvas-container {
+  /* Center the image container horizontally and vertically in the available space */
+  width: 100%;
+  max-width: calc(90vw - 600px);
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  overflow: hidden;
+  margin-left: 0px;
+}
+#canvasViewport {
+  /* Center the canvas itself */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+/* Lighten/darken blend mode */
+.lighten-only {
+  image-rendering: pixelated;
+  mix-blend-mode: lighten;
+}
+.darken-only {
+  image-rendering: pixelated;
+  mix-blend-mode: multiply;
+}
+
+/* Additional styles from embedded CSS - overriding existing .app styles */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: var(--panel);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.brand {
+  font-size: 18px;
+  font-weight: bold;
+  color: #7fdfff;
+}
+.controls-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.file-input {
+  margin-bottom: 12px;
+}
+/* .swatches - Custom grid layout for swatches handled in HTML *
+.slider-arrow {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: #333;
+  color: #7fdfff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.slider-arrow:hover {
+  background: #444;
+}
+.slider-arrow:active {
+  background: #555;
+}
