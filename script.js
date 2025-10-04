@@ -866,3 +866,47 @@ function applyHueLightnessToSelected(hueDeg, lightPct){
 applyHueBtn.addEventListener('click', ()=>{
   applyHueLightnessToSelected(hueSliderEl.value, lightSliderEl.value);
 });
+
+/* -------------------------
+  Navigation functionality (README and Light Mode Toggle)
+-------------------------*/
+
+// Dark/Light mode toggle
+const darkModeToggle = document.getElementById('darkModeToggle');
+const readmeBtn = document.getElementById('readmeBtn');
+
+// Initialize dark mode on page load (default to dark mode)
+document.addEventListener('DOMContentLoaded', () => {
+  const savedMode = localStorage.getItem('darkMode');
+  if (savedMode === 'false') {
+    // Only switch to light mode if explicitly set
+    document.body.classList.add('light-mode');
+    darkModeToggle.textContent = '☀️';
+  } else {
+    // Default to dark mode
+    localStorage.setItem('darkMode', 'true');
+    darkModeToggle.textContent = '🌙';
+  }
+});
+
+// Dark mode toggle functionality
+darkModeToggle.addEventListener('click', () => {
+  const isLightMode = document.body.classList.contains('light-mode');
+  
+  if (isLightMode) {
+    // Switch to dark mode
+    document.body.classList.remove('light-mode');
+    darkModeToggle.textContent = '🌙';
+    localStorage.setItem('darkMode', 'true');
+  } else {
+    // Switch to light mode
+    document.body.classList.add('light-mode');
+    darkModeToggle.textContent = '☀️';
+    localStorage.setItem('darkMode', 'false');
+  }
+});
+
+// README button functionality
+readmeBtn.addEventListener('click', () => {
+  window.location.href = 'readme.html';
+});
